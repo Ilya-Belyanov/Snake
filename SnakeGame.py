@@ -12,7 +12,9 @@ class MyWindow(QtWidgets.QMainWindow):
         self.ui.setupUi(self)
 
         self.timerMove = QtCore.QBasicTimer()
-        self.timerMove.start(100, self)
+
+        self.speed = 120
+        self.timerMove.start(self.speed, self)
         self.ui.frame.gameOverSignal.connect(self.gameOver)
         self.ui.frame.cointSignal[str].connect(self.ui.statusbar.showMessage)
         self.ui.frame.gameWinnerSignal.connect(self.gameWin)
@@ -40,7 +42,7 @@ class MyWindow(QtWidgets.QMainWindow):
         self.ui.frame.newSnake()
         self.ui.frame.Apple()
         self.stop = False
-        self.timerMove.start(100, self)
+        self.timerMove.start(self.speed , self)
 
 
     def timerEvent(self, event):

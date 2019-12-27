@@ -14,6 +14,7 @@ class FormPaint(QtWidgets.QFrame):
         self.Width = 30
         self.Height = 30
 
+        self.startSnake = 4
         self.newSnake()
         self.Apple()
 
@@ -30,7 +31,7 @@ class FormPaint(QtWidgets.QFrame):
         self.snakeCoords.append(coord)
 
 
-        for i in range(0,4):
+        for i in range(0,self.startSnake):
             x -=1
             coord = [x, y]
 
@@ -68,7 +69,7 @@ class FormPaint(QtWidgets.QFrame):
                 self.cointApple+=1
                 self.cointSignal.emit('Coint - '+str(self.cointApple))
                 apple = 0
-                self.Apple()
+
 
             self.snakeCoords = []
             NewCoords = [Newx,Newy]
@@ -77,6 +78,9 @@ class FormPaint(QtWidgets.QFrame):
             for i in range(0,len(oldCoord)-apple):
                 NewCoords = [oldCoord[i][0],oldCoord[i][1]]
                 self.snakeCoords.append(NewCoords)
+
+            if apple ==0:
+                self.Apple()
 
         #Проверяем на победу
         self.checkWIN()
