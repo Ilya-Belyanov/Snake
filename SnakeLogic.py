@@ -11,10 +11,11 @@ class FormPaint(QtWidgets.QFrame):
     def __init__(self, parent):
         '''Задает начальные параметры'''
         super().__init__(parent)
-        self.Width = 30
-        self.Height = 30
+        self.Width = 3
+        self.Height = 3
 
-        self.startSnake = 4
+        self.currentMode = 2
+        self.startSnake = 0
         self.newSnake()
         self.Apple()
 
@@ -63,11 +64,21 @@ class FormPaint(QtWidgets.QFrame):
 
         if not self.checkPosition(Newx,Newy):
             self.gameOverSignal.emit()
-            self.cointSignal.emit('GAMEOVER Press Space for return')
+            self.cointSignal.emit('Coint - '+str(self.cointApple) + '  GAMEOVER Press Space for return')
         else:
+            if self.currentMode ==2:
+                if Newx <0:
+                    Newx+=self.Width
+                elif Newx > self.Width -1 :
+                    Newx -= self.Width
+                elif Newy <1:
+                    Newy+=self.Height
+                elif Newy > self.Height:
+                    Newy -= self.Height
+
             if self.checkCollision(Newx, Newy):
                 self.cointApple+=1
-                self.cointSignal.emit('Coint - '+str(self.cointApple))
+                self.cointSignal.emit('Coint - '+str(self.cointApple) + ' Режим ' +str(self.currentMode))
                 apple = 0
 
 
@@ -80,16 +91,20 @@ class FormPaint(QtWidgets.QFrame):
                 self.snakeCoords.append(NewCoords)
 
             if apple ==0:
-                self.Apple()
+                # Проверяем на победу
+                self.checkWIN()
 
-        #Проверяем на победу
-        self.checkWIN()
+
+
 
     def checkPosition(self,Newx,Newy):
         '''Проверяем на выход за рамки и не пересекая себя же'''
         NewCoords = [Newx, Newy]
         if Newx > self.Width - 1 or Newy > self.Height or Newx < 0 or Newy < 1:
-            return False
+            if self.currentMode ==1:
+                return False
+            elif self.currentMode ==2:
+                return True
 
         elif NewCoords in self.snakeCoords:
             return False
@@ -116,6 +131,10 @@ class FormPaint(QtWidgets.QFrame):
         if len(self.snakeCoords) == self.Width*self.Height:
             self.gameWinnerSignal.emit()
             self.cointSignal.emit('WIN!!! Respect For you. Press Space for return')
+
+        else:
+            self.Apple()
+
     def paintEvent(self, event):
         ''' Рисуем все элементы'''
         qp = QtGui.QPainter()
@@ -154,14 +173,15 @@ class FormPaint(QtWidgets.QFrame):
 
     def drawApple(self,qp,size):
         '''Рисуем яблоко'''
-        color = QtGui.QColor.fromRgb(100, 0, 0, 255)
-        pen = QtGui.QPen(color, 0.5, QtCore.Qt.SolidLine)
-        qp.setPen(pen)
+        if len(self.snakeCoords) != self.Width * self.Height:
+            color = QtGui.QColor.fromRgb(100, 0, 0, 255)
+            pen = QtGui.QPen(color, 0.5, QtCore.Qt.SolidLine)
+            qp.setPen(pen)
 
 
-        x = self.appleCoords[0] * (size.width() / self.Width)
-        y = (self.Height-self.appleCoords[1]) * (size.height() / self.Height)
-        qp.fillRect(x +1, y+1, (size.width() / self.Width) - 2, (size.height() / self.Height) - 2,
+            x = self.appleCoords[0] * (size.width() / self.Width)
+            y = (self.Height-self.appleCoords[1]) * (size.height() / self.Height)
+            qp.fillRect(x +1, y+1, (size.width() / self.Width) - 2, (size.height() / self.Height) - 2,
                         color)
 
 class Ui_MainWindow(object):
@@ -194,5 +214,5 @@ class Ui_MainWindow(object):
 
     def retranslateUi(self, MainWindow):
         _translate = QtCore.QCoreApplication.translate
-        MainWindow.setWindowTitle(_translate("MainWindow", "Etching"))
+        MainWindow.setWindowTitle(_translate("MainWindow", "Snake"))
 

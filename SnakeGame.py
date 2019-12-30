@@ -13,7 +13,7 @@ class MyWindow(QtWidgets.QMainWindow):
 
         self.timerMove = QtCore.QBasicTimer()
 
-        self.speed = 120
+        self.speed = 1000
         self.timerMove.start(self.speed, self)
         self.ui.frame.gameOverSignal.connect(self.gameOver)
         self.ui.frame.cointSignal[str].connect(self.ui.statusbar.showMessage)
@@ -25,7 +25,7 @@ class MyWindow(QtWidgets.QMainWindow):
         self.stop = False
 
         # Первоначальный счет
-        self.ui.statusbar.showMessage('Coint - 0')
+        self.ui.statusbar.showMessage('Coint - 0'+ ' Режим ' +str(self.ui.frame.currentMode))
 
     def gameOver(self):
         '''Останавливаем игру'''
