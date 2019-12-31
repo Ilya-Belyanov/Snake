@@ -11,16 +11,16 @@ class FormPaint(QtWidgets.QFrame):
     def __init__(self, parent):
         '''Задает начальные параметры'''
         super().__init__(parent)
-        self.Width = 3
-        self.Height = 3
+        self.Width = 20
+        self.Height = 20
 
         self.currentMode = 2
-        self.startSnake = 0
+        self.startSnake = 8
         self.newSnake()
         self.Apple()
 
 
-    def newSnake(self):
+    def newSnake (self):
         '''Новая змея'''
         self.cointApple = 0
         self.currentDirect = (0, 1)
@@ -37,7 +37,7 @@ class FormPaint(QtWidgets.QFrame):
             coord = [x, y]
 
             self.snakeCoords.append(coord)
-        self.cointSignal.emit('Coint - ' + str(self.cointApple))
+        self.cointSignal.emit('Coint - ' + str(self.cointApple) + ' Режим ' +str(self.currentMode))
 
 
     def Apple(self):
@@ -123,7 +123,27 @@ class FormPaint(QtWidgets.QFrame):
 
     def changeMove(self,x,y):
         '''Меняем направление'''
-        if self.currentDirect[0] != -x or self.currentDirect[1] != -y:
+
+        if len(self.snakeCoords) > 1:
+            NewX = self.snakeCoords[0][0] + x
+            NewY = self.snakeCoords[0][1] + y
+
+            if self.currentMode ==2:
+                if NewX <0:
+                    NewX+=self.Width
+                elif NewX > self.Width -1 :
+                    NewX -= self.Width
+                elif NewY <1:
+                    NewY+=self.Height
+                elif NewY > self.Height:
+                    NewY -= self.Height
+
+            if NewX == self.snakeCoords[1][0] and NewY == self.snakeCoords[1][1]:
+                pass
+            else:
+                self.currentDirect = (x, y)
+
+        elif self.currentDirect[0] != -x or self.currentDirect[1] != -y:
             self.currentDirect = (x, y)
 
     def checkWIN(self):

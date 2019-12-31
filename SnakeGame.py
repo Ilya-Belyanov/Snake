@@ -13,7 +13,7 @@ class MyWindow(QtWidgets.QMainWindow):
 
         self.timerMove = QtCore.QBasicTimer()
 
-        self.speed = 1000
+        self.speed = 1200
         self.timerMove.start(self.speed, self)
         self.ui.frame.gameOverSignal.connect(self.gameOver)
         self.ui.frame.cointSignal[str].connect(self.ui.statusbar.showMessage)
@@ -82,7 +82,7 @@ class MyWindow(QtWidgets.QMainWindow):
 
         recursiveSetChildFocusPolicy(self)
 
-app=QtWidgets.QApplication([])
-application=MyWindow()
+app = QtWidgets.QApplication([])
+application = MyWindow()
 application.show()
 sys.exit(app.exec())
