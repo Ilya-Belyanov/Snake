@@ -37,7 +37,7 @@ class FormPaint(QtWidgets.QFrame):
             coord = [x, y]
 
             self.snakeCoords.append(coord)
-        self.cointSignal.emit('Coint - ' + str(self.cointApple) + ' Режим ' +str(self.currentMode))
+        self.cointSignal.emit('Coint - ' + str(self.cointApple) + ' Mode ' +str(self.currentMode))
 
 
     def Apple(self):
@@ -78,7 +78,7 @@ class FormPaint(QtWidgets.QFrame):
 
             if self.checkCollision(Newx, Newy):
                 self.cointApple+=1
-                self.cointSignal.emit('Coint - '+str(self.cointApple) + ' Режим ' +str(self.currentMode))
+                self.cointSignal.emit('Coint - '+str(self.cointApple) + ' Mode ' +str(self.currentMode))
                 apple = 0
 
 

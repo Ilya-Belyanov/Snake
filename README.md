@@ -1,6 +1,6 @@
 # Snake
 Game classic Snake with classic rules.
-1) Do not go beynd
+1) Do not go beynd (Mode 1)
 2)Don't bite yourself
 3)There are apple for growth
 4)Fill in the whole field
