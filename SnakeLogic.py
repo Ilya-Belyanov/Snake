@@ -1,27 +1,26 @@
-from PyQt5 import QtCore, QtGui, QtWidgets
-from PyQt5.QtWidgets import QWidget
+from PyQt5 import  QtCore, QtGui, QtWidgets
 import random
 
 
 class FormPaint(QtWidgets.QFrame):
-    '''Окно отображения'''
+    '''Central frame'''
     gameOverSignal = QtCore.pyqtSignal() # Для подтверждения проигрыша
     gameWinnerSignal = QtCore.pyqtSignal()  # Для подтверждения выигрыша
-    cointSignal = QtCore.pyqtSignal(str) # Для отправки счета
+    lcdSignal = QtCore.pyqtSignal(int) # Сигнал для дисплея count
+    lcdSignalMode = QtCore.pyqtSignal(int) # Сигнал о текущем моде
     def __init__(self, parent):
-        '''Задает начальные параметры'''
+        '''Set Start Parameters'''
         super().__init__(parent)
-        self.Width = 20
-        self.Height = 20
+        self.Width = 30
+        self.Height = 30
 
-        self.currentMode = 2
-        self.startSnake = 8
+        self.currentMode = 1
+        self.startSnake = 4
         self.newSnake()
-        self.Apple()
+        self.createApple()
 
 
     def newSnake (self):
-        '''Новая змея'''
         self.cointApple = 0
         self.currentDirect = (0, 1)
         self.snakeCoords = []
@@ -34,13 +33,13 @@ class FormPaint(QtWidgets.QFrame):
 
         for i in range(0,self.startSnake):
             x -=1
-            coord = [x, y]
-
+            coord = [x, y]            
             self.snakeCoords.append(coord)
-        self.cointSignal.emit('Coint - ' + str(self.cointApple) + ' Mode ' +str(self.currentMode))
+            self.lcdSignal.emit(self.cointApple)
+            self.lcdSignalMode.emit(self.currentMode)
 
 
-    def Apple(self):
+    def createApple(self):
         '''Создает яблоко'''
         while True:
             x = random.randint(0,self.Width-1)
@@ -52,8 +51,6 @@ class FormPaint(QtWidgets.QFrame):
         self.appleCoords = coords
 
     def snakeMove(self):
-        '''Движение змеи'''
-
         oldCoord = self.snakeCoords
 
         Newx =  oldCoord[0][0] + self.currentDirect[0]
@@ -64,7 +61,7 @@ class FormPaint(QtWidgets.QFrame):
 
         if not self.checkPosition(Newx,Newy):
             self.gameOverSignal.emit()
-            self.cointSignal.emit('Coint - '+str(self.cointApple) + '  GAMEOVER Press Space for return')
+
         else:
             if self.currentMode ==2:
                 if Newx <0:
@@ -77,10 +74,9 @@ class FormPaint(QtWidgets.QFrame):
                     Newy -= self.Height
 
             if self.checkCollision(Newx, Newy):
-                self.cointApple+=1
-                self.cointSignal.emit('Coint - '+str(self.cointApple) + ' Mode ' +str(self.currentMode))
+                self.cointApple += 1
+                self.lcdSignal.emit(self.cointApple)
                 apple = 0
-
 
             self.snakeCoords = []
             NewCoords = [Newx,Newy]
@@ -91,10 +87,7 @@ class FormPaint(QtWidgets.QFrame):
                 self.snakeCoords.append(NewCoords)
 
             if apple ==0:
-                # Проверяем на победу
                 self.checkWIN()
-
-
 
 
     def checkPosition(self,Newx,Newy):
@@ -108,22 +101,19 @@ class FormPaint(QtWidgets.QFrame):
 
         elif NewCoords in self.snakeCoords:
             return False
-
         else:
             return True
 
     def checkCollision(self,Newx,Newy):
         '''Проверяет на столкновение с яблоком'''
         NewCoords = [Newx, Newy]
-
         if NewCoords == self.appleCoords:
             return True
         else:
             return False
 
     def changeMove(self,x,y):
-        '''Меняем направление'''
-
+        '''Change direction of move'''
         if len(self.snakeCoords) > 1:
             NewX = self.snakeCoords[0][0] + x
             NewY = self.snakeCoords[0][1] + y
@@ -143,20 +133,17 @@ class FormPaint(QtWidgets.QFrame):
             else:
                 self.currentDirect = (x, y)
 
-        elif self.currentDirect[0] != -x or self.currentDirect[1] != -y:
+        else:
             self.currentDirect = (x, y)
 
     def checkWIN(self):
-        '''Проверяем на выигрыш'''
         if len(self.snakeCoords) == self.Width*self.Height:
             self.gameWinnerSignal.emit()
-            self.cointSignal.emit('WIN!!! Respect For you. Press Space for return')
-
         else:
-            self.Apple()
+            self.createApple()
 
     def paintEvent(self, event):
-        ''' Рисуем все элементы'''
+        ''' Draw all elements'''
         qp = QtGui.QPainter()
         size = self.size()
         qp.begin(self)
@@ -166,9 +153,8 @@ class FormPaint(QtWidgets.QFrame):
         qp.end()
 
     def drawGrid(self,qp,size):
-        ''' Рисуем сетку'''
         color = QtGui.QColor.fromRgb(0, 0, 0, 255)
-        pen = QtGui.QPen(color,0.1, QtCore.Qt.SolidLine)
+        pen = QtGui.QPen(color,0.2, QtCore.Qt.SolidLine)
         qp.setPen(pen)
 
         for j in range(self.Height+1):
@@ -179,60 +165,38 @@ class FormPaint(QtWidgets.QFrame):
                 x = i * (size.width() / self.Width)
                 qp.drawLine(x,0,x,size.height())
 
+        pen = QtGui.QPen(color, 1, QtCore.Qt.SolidLine)
+        qp.setPen(pen)
+        qp.drawRect(0,0,size.height()-1,size.width()-1)
+
     def drawSnake(self,qp,size):
-        '''Рисуем змею'''
-        color = QtGui.QColor.fromRgb(0, 0, 0, 255)
+        color = QtGui.QColor.fromRgb(0, 250, 0, 255)
+        color_2 = QtGui.QColor.fromRgb(0, 200,0, 255)
         pen = QtGui.QPen(color, 0.5, QtCore.Qt.SolidLine)
         qp.setPen(pen)
 
         for i in self.snakeCoords:
             x = i[0] * (size.width() / self.Width)
             y = (self.Height-i[1]) * (size.height() / self.Height)
+            qp.fillRect(x, y , (size.width() / self.Width) , (size.height() / self.Height) ,
+                        color_2)
             qp.fillRect(x +1, y+1, (size.width() / self.Width) - 2, (size.height() / self.Height) - 2,
                         color)
 
+
     def drawApple(self,qp,size):
-        '''Рисуем яблоко'''
         if len(self.snakeCoords) != self.Width * self.Height:
-            color = QtGui.QColor.fromRgb(100, 0, 0, 255)
+            color = QtGui.QColor.fromRgb(200, 0, 0, 255)
+            #color_2 = QtGui.QColor.fromRgb(255, 255, 255, 255)
             pen = QtGui.QPen(color, 0.5, QtCore.Qt.SolidLine)
             qp.setPen(pen)
-
+            qp.setBrush(color)
 
             x = self.appleCoords[0] * (size.width() / self.Width)
             y = (self.Height-self.appleCoords[1]) * (size.height() / self.Height)
-            qp.fillRect(x +1, y+1, (size.width() / self.Width) - 2, (size.height() / self.Height) - 2,
-                        color)
+            #qp.fillRect(x, y, (size.width() / self.Width), (size.height() / self.Height),
+                        #color_2)
+            qp.drawEllipse(x , y, (size.width() / self.Width) , (size.height() / self.Height) )
 
-class Ui_MainWindow(object):
-    def setupUi(self, MainWindow):
-        MainWindow.setObjectName("MainWindow")
-        MainWindow.resize(1200, 900)
-        self.centralwidget = QtWidgets.QWidget(MainWindow)
-        self.centralwidget.setObjectName("centralwidget")
 
-        self.gridLayout_2 = QtWidgets.QGridLayout(self.centralwidget)
-        self.gridLayout_2.setObjectName("gridLayout_2")
-
-        self.frame = FormPaint(self.centralwidget)
-        self.frame.setFrameShape(QtWidgets.QFrame.StyledPanel)
-        self.frame.setFrameShadow(QtWidgets.QFrame.Raised)
-        self.frame.setObjectName("frame")
-        self.gridLayout_2.addWidget(self.frame, 0, 0, 1, 1)
-
-        MainWindow.setCentralWidget(self.centralwidget)
-        self.menubar = QtWidgets.QMenuBar(MainWindow)
-        self.menubar.setGeometry(QtCore.QRect(0, 0, 800, 26))
-        self.menubar.setObjectName("menubar")
-        MainWindow.setMenuBar(self.menubar)
-        self.statusbar = QtWidgets.QStatusBar(MainWindow)
-        self.statusbar.setObjectName("statusbar")
-        MainWindow.setStatusBar(self.statusbar)
-
-        self.retranslateUi(MainWindow)
-        QtCore.QMetaObject.connectSlotsByName(MainWindow)
-
-    def retranslateUi(self, MainWindow):
-        _translate = QtCore.QCoreApplication.translate
-        MainWindow.setWindowTitle(_translate("MainWindow", "Snake"))
 
