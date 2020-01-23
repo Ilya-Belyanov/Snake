@@ -20,6 +20,9 @@ class MyWindow(QtWidgets.QMainWindow):
         self.ui.frame.lcdSignalMode.connect(self.changeLcdMode)
         self.ui.btMode1.clicked.connect(self.setModeOne)
         self.ui.btMode2.clicked.connect(self.setModeTwo)
+        self.ui.btColor.clicked.connect(self.showSnakeColor)
+        self.ui.btBorderColor.clicked.connect(self.showBorderColor)
+        self.ui.btAppleColor.clicked.connect(self.showAppleColor)
         
         # First parameters
         self.ui.lcdModeName.display(self.ui.frame.currentMode)
@@ -30,30 +33,33 @@ class MyWindow(QtWidgets.QMainWindow):
 
         self.stop = False
 
-        self.windowStyle()
-
-    def windowStyle(self):
         self.ui.frame.setGeometry(QtCore.QRect(200, 25, 800, 800))
-        self.ui.frameRight.setGeometry(QtCore.QRect(1025, 25, 100, 350))
+        self.ui.frameRight.setGeometry(QtCore.QRect(1025, 25, 200, 350))
         self.ui.frameLeft.setGeometry(QtCore.QRect(0, 25, 200, 300))
+        self.loadStyleSheets()
 
-        self.ui.frame.setStyleSheet('background-color: rgb(120,120,120)')
-        self.ui.frameRight.setStyleSheet('background-color: rgb(170,170,170)')
-        self.ui.frameLeft.setStyleSheet('background-color: rgb(220,220,220)')
-        self.ui.centralwidget.setStyleSheet('background-color: rgb(220,220,220)')
-        self.ui.statusbar.setStyleSheet('background-color: rgb(200,200,200)')
+    def loadStyleSheets(self):
+         style = "static/style.css"
+         with open(style, "r") as f:
+             self.setStyleSheet(f.read())
 
-        self.ui.lbModeChoice.setFont(QtGui.QFont('Lucida Bright', 7))
-        self.ui.lbModeChoice.setAlignment(QtCore.Qt.AlignTop | QtCore.Qt.AlignTop)
+    def showSnakeColor(self):
+        color = QtWidgets.QColorDialog.getColor()
 
-        self.ui.lbCount.setFont(QtGui.QFont('Lucida Bright', 7))
-        self.ui.lbCount.setAlignment(QtCore.Qt.AlignCenter | QtCore.Qt.AlignCenter)
+        if color.isValid():
+            self.ui.frame.colorSnake = color
 
-        self.ui.lbModeName.setFont(QtGui.QFont('Lucida Bright', 7))
-        self.ui.lbModeName.setAlignment(QtCore.Qt.AlignCenter | QtCore.Qt.AlignCenter)
+    def showBorderColor(self):
+        color = QtWidgets.QColorDialog.getColor()
 
-        self.ui.lbStatus.setFont(QtGui.QFont('Lucida Bright', 12))
-        self.ui.lbStatus.setAlignment(QtCore.Qt.AlignCenter | QtCore.Qt.AlignCenter)
+        if color.isValid():
+            self.ui.frame.borderSnake = color
+
+    def showAppleColor(self):
+        color = QtWidgets.QColorDialog.getColor()
+
+        if color.isValid():
+            self.ui.frame.colorApple = color
 
     def changeLcdMode(self,mode):
         self.ui.lcdModeName.display(mode)

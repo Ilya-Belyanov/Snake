@@ -16,6 +16,9 @@ class FormPaint(QtWidgets.QFrame):
 
         self.currentMode = 1
         self.startSnake = 4
+        self.colorSnake = QtGui.QColor.fromRgb(0, 250, 0, 255)
+        self.borderSnake = QtGui.QColor.fromRgb(0, 200,0, 255)
+        self.colorApple = QtGui.QColor.fromRgb(200, 0, 0, 255)
         self.newSnake()
         self.createApple()
 
@@ -170,8 +173,8 @@ class FormPaint(QtWidgets.QFrame):
         qp.drawRect(0,0,size.height()-1,size.width()-1)
 
     def drawSnake(self,qp,size):
-        color = QtGui.QColor.fromRgb(0, 250, 0, 255)
-        color_2 = QtGui.QColor.fromRgb(0, 200,0, 255)
+        color = self.colorSnake
+        color_2 = self.borderSnake
         pen = QtGui.QPen(color, 0.5, QtCore.Qt.SolidLine)
         qp.setPen(pen)
 
@@ -183,10 +186,35 @@ class FormPaint(QtWidgets.QFrame):
             qp.fillRect(x +1, y+1, (size.width() / self.Width) - 2, (size.height() / self.Height) - 2,
                         color)
 
+        x = self.snakeCoords[0][0] * (size.width() / self.Width)
+        y = (self.Height - self.snakeCoords[0][1]) * (size.height() / self.Height)
+
+        color_3 = QtGui.QColor.fromRgb(0, 10, 0, 255)
+        pen = QtGui.QPen(color_3, 0.5, QtCore.Qt.SolidLine)
+        qp.setPen(pen)
+        qp.setBrush(color_3)
+
+        if self.currentDirect == (0,1):
+            qp.drawEllipse(x+2, y+2, 6, 6)
+            qp.drawEllipse(x+ (size.width() / self.Width) - 8, y + 2, 6, 6)
+
+        elif self.currentDirect == (0, -1):
+            qp.drawEllipse(x + 2, y + (size.width() / self.Width) - 8, 6,6)
+            qp.drawEllipse(x + (size.width() / self.Width) - 8, y + (size.width() / self.Width) - 8, 6, 6)
+
+        elif self.currentDirect == (-1,0):
+            qp.drawEllipse(x+2, y+2, 6, 6)
+            qp.drawEllipse(x+2,y + (size.width() / self.Width) - 8, 6, 6)
+
+        elif self.currentDirect == (1,0):
+            qp.drawEllipse(x+ (size.width() / self.Width) - 8, y + 2, 6, 6)
+            qp.drawEllipse(x+ (size.width() / self.Width) - 8, y + (size.width() / self.Width) - 8, 6, 6)
+
+
 
     def drawApple(self,qp,size):
         if len(self.snakeCoords) != self.Width * self.Height:
-            color = QtGui.QColor.fromRgb(200, 0, 0, 255)
+            color = self.colorApple
             #color_2 = QtGui.QColor.fromRgb(255, 255, 255, 255)
             pen = QtGui.QPen(color, 0.5, QtCore.Qt.SolidLine)
             qp.setPen(pen)

@@ -4,7 +4,7 @@ from SnakeLogic import FormPaint
 class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
         MainWindow.setObjectName("MainWindow")
-        MainWindow.setFixedSize(1150, 875)
+        MainWindow.setFixedSize(1250, 875)
         self.centralwidget = QtWidgets.QWidget(MainWindow)
         self.centralwidget.setObjectName("centralwidget")
 
@@ -16,15 +16,20 @@ class Ui_MainWindow(object):
  
         self.frameLeft = QtWidgets.QFrame(self.centralwidget)
         self.frameRight = QtWidgets.QFrame(self.centralwidget)
+        self.frameRight.setObjectName("frameRight")
 
-        self.lbModeChoice = QtWidgets.QLabel('Choise Mode')
-        self.btMode1 = QtWidgets.QPushButton('Mode 1')
-        self.btMode2 = QtWidgets.QPushButton('Mode 2')
+        self.lbModeChoice = QtWidgets.QLabel('Walls')
+        self.btMode1 = QtWidgets.QPushButton('1. On')
+        self.btMode2 = QtWidgets.QPushButton('2. Off')
+        self.lbCharact = QtWidgets.QLabel('Characteristic \n Color')
+        self.btColor = QtWidgets.QPushButton('Snake')
+        self.btBorderColor = QtWidgets.QPushButton('Border Snake')
+        self.btAppleColor = QtWidgets.QPushButton('Apple')
 
         self.lbCount = QtWidgets.QLabel('Count of apple')
         self.lcdCount = QtWidgets.QLCDNumber()
 
-        self.lbModeName = QtWidgets.QLabel('Current Mode')
+        self.lbModeName = QtWidgets.QLabel('State Walls')
         self.lcdModeName = QtWidgets.QLCDNumber()
 
         self.lbStatus = QtWidgets.QLabel()
@@ -42,6 +47,10 @@ class Ui_MainWindow(object):
         self.vbox.addWidget(self.lbModeChoice)
         self.vbox.addWidget(self.btMode1)
         self.vbox.addWidget(self.btMode2)
+        self.vbox.addWidget(self.lbCharact)
+        self.vbox.addWidget(self.btColor)
+        self.vbox.addWidget(self.btBorderColor)
+        self.vbox.addWidget(self.btAppleColor)
 
         MainWindow.setCentralWidget(self.centralwidget)
         self.menubar = QtWidgets.QMenuBar(MainWindow)
