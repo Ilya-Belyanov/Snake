@@ -1,6 +1,7 @@
 
 from PyQt5 import  QtCore, QtGui, QtWidgets
 from SnakeWindow import Ui_MainWindow
+import sys
 
 class MyWindow(QtWidgets.QMainWindow):
     def __init__(self):
@@ -9,7 +10,8 @@ class MyWindow(QtWidgets.QMainWindow):
 
         self.ui = Ui_MainWindow()
         self.ui.setupUi(self)
-
+        #screen = QtWidgets.QApplication(sys.argv)
+        #print(screen.desktop().screenGeometry().width(),' X ',screen.desktop().screenGeometry().height())
         self.speed = 120
         self.timerMove = QtCore.QBasicTimer()
         self.timerMove.start(self.speed, self)
@@ -23,6 +25,7 @@ class MyWindow(QtWidgets.QMainWindow):
         self.ui.btColor.clicked.connect(self.showSnakeColor)
         self.ui.btBorderColor.clicked.connect(self.showBorderColor)
         self.ui.btAppleColor.clicked.connect(self.showAppleColor)
+        self.ui.shadow.toggled.connect(self.checkStateShadow)
         
         # First parameters
         self.ui.lcdModeName.display(self.ui.frame.currentMode)
@@ -33,15 +36,34 @@ class MyWindow(QtWidgets.QMainWindow):
 
         self.stop = False
 
-        self.ui.frame.setGeometry(QtCore.QRect(200, 25, 800, 800))
-        self.ui.frameRight.setGeometry(QtCore.QRect(1025, 25, 200, 350))
-        self.ui.frameLeft.setGeometry(QtCore.QRect(0, 25, 200, 300))
         self.loadStyleSheets()
+
+    def setSizeWindows(self,app):
+        W = app.desktop().screenGeometry().width()
+        H = app.desktop().screenGeometry().height()
+        print(W, ' X ', H)
+        mainW = int(W*0.625)
+        mainH =int(H*0.720)
+        indentW =int( (W/2) - (mainW/2) )
+        indentH = int((H / 2) - (mainH / 2))
+
+        self.move(indentW, indentH)
+        self.setFixedSize(mainW, mainH)
+        self.ui.frameLeft.setGeometry(QtCore.QRect(0, 25, int(mainW * 0.16),int (mainH/2) - 50))
+        self.ui.frame.setGeometry(QtCore.QRect(int(mainW*0.16), 25, int(mainW*0.60),mainH - 50))
+        self.ui.frameRight.setGeometry(QtCore.QRect(int(mainW*0.16) + int(mainW*0.60) + 25, 25, int(mainW*0.2), int (mainH/2)))
 
     def loadStyleSheets(self):
          style = "static/style.css"
          with open(style, "r") as f:
              self.setStyleSheet(f.read())
+
+    def checkStateShadow(self):
+        if self.ui.shadow.isChecked():
+            self.ui.frame.shadowExist = True
+        else:
+            self.ui.frame.shadowExist = False
+
 
     def showSnakeColor(self):
         color = QtWidgets.QColorDialog.getColor()
@@ -97,6 +119,7 @@ class MyWindow(QtWidgets.QMainWindow):
         if event.timerId() == self.timerMove.timerId():
             self.ui.frame.snakeMove()
             self.update()
+
 
 
     def keyPressEvent(self, event):

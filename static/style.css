@@ -26,6 +26,12 @@ QPushButton:pressed {
   border-style: inset;
    }
 
+QRadioButton {
+  color: #eff0f1;
+  font: bold 15px;
+  font-family:"Lucida Console";
+}
+
 
 
 QLabel {

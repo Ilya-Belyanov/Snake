@@ -1,5 +1,6 @@
 from PyQt5 import  QtCore, QtGui, QtWidgets
 import random
+import math
 
 
 class FormPaint(QtWidgets.QFrame):
@@ -20,6 +21,7 @@ class FormPaint(QtWidgets.QFrame):
         self.borderSnake = QtGui.QColor.fromRgb(0, 200,0, 255)
         self.colorApple = QtGui.QColor.fromRgb(200, 0, 0, 255)
         self.newSnake()
+        self.shadowExist = True
         self.createApple()
 
 
@@ -179,10 +181,13 @@ class FormPaint(QtWidgets.QFrame):
         qp.setPen(pen)
 
         for i in self.snakeCoords:
-            x = i[0] * (size.width() / self.Width)
-            y = (self.Height-i[1]) * (size.height() / self.Height)
-            qp.fillRect(x, y , (size.width() / self.Width) , (size.height() / self.Height) ,
+            if self.shadowExist:
+                x = i[0] * (size.width() // self.Width)
+                y = (self.Height-i[1]) * (size.height() // self.Height)
+                qp.fillRect(x, y , (size.width() / self.Width) , (size.height() / self.Height) ,
                         color_2)
+            x = i[0] * (size.width() / self.Width)
+            y = (self.Height - i[1]) * (size.height() / self.Height)
             qp.fillRect(x +1, y+1, (size.width() / self.Width) - 2, (size.height() / self.Height) - 2,
                         color)
 
