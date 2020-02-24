@@ -14,24 +14,24 @@ class Snake:
         self.startCoord = [x, y]
         self.coords.append(self.startCoord)
         self.currentDirect = (0, 1)
-        for i in range(0, self.lenSnake):
+        for i in range(self.lenSnake - 1):
             x -=1
             coord = [x, y]
             self.coords.append(coord)
 
-    def checkLen(self, apple):
+    def checkMinLen(self, apple):
         oldCoord = self.coords
         if len(oldCoord) - apple < 0:
             return False
         return True
 
-    def move(self, apple, Newx, Newy):
+    def move(self, apple, Newx, Newy, cut):
         if not self.deleted:
             oldCoord = self.coords
             self.coords = []
             NewCoords = [Newx, Newy]
             self.coords.append(NewCoords)
-            for i in range(len(oldCoord) - apple):
+            for i in range(len(oldCoord) - apple - cut):
                 NewCoords = [oldCoord[i][0], oldCoord[i][1]]
                 self.coords.append(NewCoords)
 
@@ -50,9 +50,18 @@ class Snake:
             return True
         else:
             return False
+
+    def collision(self, coords):
+        if coords in self.coords:
+            return True
+        return False
+
     def deleteMe(self):
         self.coords = []
         self.deleted = True
+
+    def getLen(self):
+        return len(self.coords)
 
 class Apple:
     def __init__(self, coord):

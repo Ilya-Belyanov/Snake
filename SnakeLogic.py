@@ -8,6 +8,7 @@ class FormPaint(QtWidgets.QFrame):
     lcdSignal = QtCore.pyqtSignal(int) # Сигнал для дисплея count
     lcdSignalMode = QtCore.pyqtSignal(int) # Сигнал о текущем моде
     AppleTimer = QtCore.pyqtSignal(int) # Сигнал при плохом яблоке
+    lcdSignalLenSnake = QtCore.pyqtSignal(int)
     def __init__(self, parent):
         """Set Start Parameters"""
         super().__init__(parent)
@@ -22,22 +23,27 @@ class FormPaint(QtWidgets.QFrame):
         self.snake.createNew(x=int(self.Width/2), y=1)
         self.lcdSignal.emit(self.cointApple)
         self.lcdSignalMode.emit(self.currentMode)
+        self.lcdSignalLenSnake.emit(self.snake.getLen())
         self.createApple()
 
     def createApple(self):
         """Создает яблоко"""
-        while True:
-            x = random.randint(0,self.Width-1)
-            y = random.randint(1,self.Height)
-            coords = [x,y]
-            if coords not in self.snake.coords:
-                break
+        coords = self.createAppleCoord()
         ap = random.randint(1,10)
         if ap <= 9:
             self.apple = Apple(coords)
         else:
             self.apple = BadApple(coords)
-            self.AppleTimer.emit(5000)
+            self.AppleTimer.emit(3000)
+
+    def createAppleCoord(self):
+        while True:
+            x = random.randint(0,self.Width-1)
+            y = random.randint(1,self.Height)
+            coords = [x,y]
+            if not self.snake.collision(coords):
+                break
+        return coords
 
     def createGoodApple(self):
         self.apple = Apple(self.apple.coords)
@@ -45,50 +51,61 @@ class FormPaint(QtWidgets.QFrame):
     def snakeMove(self):
         Newx =  self.snake.coords[0][0] + self.snake.currentDirect[0]
         Newy =  self.snake.coords[0][1] + self.snake.currentDirect[1]
-        Newx, Newy = self.checkMode(Newx, Newy)
+        Newx, Newy, cut = self.checkMode(Newx, Newy)
         # Отвечает за столкновение с яблоком
-        apple = 1
+        __apple = 1
 
-        if not self.checkPosition(Newx,Newy):
+        if not self.checkBorder(Newx,Newy) or not self.checkCollision(Newx,Newy):
             self.gameResult.emit("GAME OVER...\nPress Space")
         else:
             if self.snake.eatApple(Newx, Newy, self.apple.coords):
                 self.cointApple += 1
                 self.lcdSignal.emit(self.cointApple)
-                apple = self.apple.effect()
-                if not self.snake.checkLen(apple):
+                __apple = self.apple.effect()
+                if not self.snake.checkMinLen(__apple):
                     self.gameResult.emit("GAME OVER...\nPress Space")
                     self.snake.deleteMe()
                 self.checkWIN()
-            self.snake.move(apple, Newx, Newy)
+            self.snake.move(__apple, Newx, Newy, cut)
+            self.lcdSignalLenSnake.emit(self.snake.getLen())
 
     def checkMode(self, Newx, Newy):
+        cut = 0
         if self.currentMode == 2:
-            if Newx < 0:
-                Newx += self.Width
-            elif Newx > self.Width - 1:
-                Newx -= self.Width
-            elif Newy < 1:
-                Newy += self.Height
-            elif Newy > self.Height:
-                Newy -= self.Height
+            Newx, Newy = self.modeTwo(Newx, Newy)
+        elif self.currentMode == 3:
+            cut = self.modeThree(Newx, Newy)
+        return Newx, Newy, cut
+
+    def modeTwo(self, Newx, Newy):
+        if Newx < 0: Newx += self.Width
+        elif Newx > self.Width - 1: Newx -= self.Width
+        elif Newy < 1: Newy += self.Height
+        elif Newy > self.Height: Newy -= self.Height
+
         return Newx, Newy
 
-    def checkPosition(self, Newx, Newy):
+    def modeThree(self, Newx, Newy):
+        if self.snake.collision([Newx, Newy]):
+            return self.snake.getLen() - self.snake.coords.index([Newx, Newy])
+        return 0
+
+    def checkBorder(self, Newx, Newy):
         """Проверяем на выход за рамки и не пересекая себя же"""
-        NewCoords = [Newx, Newy]
         if Newx > self.Width - 1 or Newy > self.Height or Newx < 0 or Newy < 1:
-            if self.currentMode ==1:
+            if self.currentMode ==1 or self.currentMode ==3:
                 return False
-            elif self.currentMode ==2:
-                return True
-        elif NewCoords in self.snake.coords:
-            return False
-        else:
-            return True
+        return True
+
+    def checkCollision(self, Newx, Newy):
+        NewCoords = [Newx, Newy]
+        if self.snake.collision(NewCoords):
+            if self.currentMode !=3:
+                return False
+        return True
 
     def checkWIN(self):
-        if len(self.snake.coords) == self.Width*self.Height:
+        if self.snake.getLen() == self.Width*self.Height:
             self.gameResult.emit("Respect for you...\nPress Space")
         else:
             self.createApple()
@@ -164,7 +181,7 @@ class FormPaint(QtWidgets.QFrame):
 
 
     def drawApple(self,qp,size):
-        if len(self.snake.coords) != self.Width*self.Height:
+        if self.snake.getLen() != self.Width*self.Height:
             color = self.apple.color
             pen = QtGui.QPen(color, 0.5, QtCore.Qt.SolidLine)
             qp.setPen(pen)

@@ -36,8 +36,9 @@ class Ui_MainWindow(object):
         self.frameRight = QtWidgets.QFrame(self.centralwidget)
         self.frameRight.setObjectName("frameRight")
         self.lbModeChoice = QtWidgets.QLabel('Walls')
-        self.btMode1 = QtWidgets.QPushButton('1. On')
-        self.btMode2 = QtWidgets.QPushButton('2. Off')
+        self.btMode1 = QtWidgets.QPushButton('1. On - Cut')
+        self.btMode2 = QtWidgets.QPushButton('2. Off - Cut')
+        self.btMode3 = QtWidgets.QPushButton('3. On + Cut')
         self.lbCharact = QtWidgets.QLabel('Characteristic \n Color')
         self.btColor = QtWidgets.QPushButton('Snake')
         self.btBorderColor = QtWidgets.QPushButton('Shadow Snake')
@@ -48,8 +49,11 @@ class Ui_MainWindow(object):
         self.lbCount = QtWidgets.QLabel('Count of apple')
         self.lcdCount = QtWidgets.QLCDNumber()
 
-        self.lbModeName = QtWidgets.QLabel('State Walls')
+        self.lbModeName = QtWidgets.QLabel('State Walls \n and Snake')
         self.lcdModeName = QtWidgets.QLCDNumber()
+
+        self.lbLenSnake = QtWidgets.QLabel('Len Snake')
+        self.lcdLenSnake = QtWidgets.QLCDNumber()
 
         self.lbStatus = QtWidgets.QLabel()
 
@@ -59,6 +63,8 @@ class Ui_MainWindow(object):
         self.vboxLeft.addWidget(self.lcdCount)
         self.vboxLeft.addWidget(self.lbModeName)
         self.vboxLeft.addWidget(self.lcdModeName)
+        self.vboxLeft.addWidget(self.lbLenSnake)
+        self.vboxLeft.addWidget(self.lcdLenSnake)
         self.vboxLeft.addWidget(self.lbStatus)
 
         self.vboxRight = QtWidgets.QVBoxLayout(self.frameRight)
@@ -66,6 +72,7 @@ class Ui_MainWindow(object):
         self.vboxRight.addWidget(self.lbModeChoice)
         self.vboxRight.addWidget(self.btMode1)
         self.vboxRight.addWidget(self.btMode2)
+        self.vboxRight.addWidget(self.btMode3)
         self.vboxRight.addWidget(self.lbCharact)
         self.vboxRight.addWidget(self.btColor)
         self.vboxRight.addWidget(self.btBorderColor)

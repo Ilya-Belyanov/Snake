@@ -18,9 +18,11 @@ class MyWindow(QtWidgets.QMainWindow):
         self.ui.frame.gameResult.connect(self.gameResult)
         self.ui.frame.lcdSignal.connect(lambda count: self.ui.lcdCount.display(count))
         self.ui.frame.lcdSignalMode.connect(lambda mode: self.ui.lcdModeName.display(mode))
+        self.ui.frame.lcdSignalLenSnake.connect(lambda length: self.ui.lcdLenSnake.display(length))
         self.ui.frame.AppleTimer.connect(lambda time: self.timerApple.start(time, self))
         self.ui.btMode1.clicked.connect(lambda : self.setMode(1))
         self.ui.btMode2.clicked.connect(lambda : self.setMode(2))
+        self.ui.btMode3.clicked.connect(lambda: self.setMode(3))
         self.ui.btColor.clicked.connect(self.showSnakeColor)
         self.ui.btBorderColor.clicked.connect(self.showBorderColor)
         self.ui.btAppleColor.clicked.connect(self.showAppleColor)
@@ -48,9 +50,9 @@ class MyWindow(QtWidgets.QMainWindow):
 
         self.move(indentW, indentH)
         self.setFixedSize(mainW, mainH)
-        self.ui.frameLeft.setGeometry(QtCore.QRect(0, 25, int(mainW * 0.16),int (mainH/2) - 50))
+        self.ui.frameLeft.setGeometry(QtCore.QRect(0, 25, int(mainW * 0.16),int (mainH/2) ))
         self.ui.frame.setGeometry(QtCore.QRect(int(mainW*0.16), 25, int(mainW*0.60),mainH - 50))
-        self.ui.frameRight.setGeometry(QtCore.QRect(int(mainW*0.16) + int(mainW*0.60) + 25, 25, int(mainW*0.2), int (mainH/2)))
+        self.ui.frameRight.setGeometry(QtCore.QRect(int(mainW*0.16) + int(mainW*0.60) + 25, 25, int(mainW*0.2), int (mainH/2)+25))
 
     def loadStyleSheets(self):
          style = "static/style.css"
