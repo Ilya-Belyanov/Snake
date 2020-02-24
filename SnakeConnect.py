@@ -1,27 +1,26 @@
-
 from PyQt5 import  QtCore, QtGui, QtWidgets
 from SnakeWindow import Ui_MainWindow
-import sys
+
 
 class MyWindow(QtWidgets.QMainWindow):
     def __init__(self):
-        '''Connect main Window'''
+        """Connect main Window"""
         super(MyWindow,self).__init__()
 
         self.ui = Ui_MainWindow()
         self.ui.setupUi(self)
-        #screen = QtWidgets.QApplication(sys.argv)
-        #print(screen.desktop().screenGeometry().width(),' X ',screen.desktop().screenGeometry().height())
         self.speed = 120
         self.timerMove = QtCore.QBasicTimer()
         self.timerMove.start(self.speed, self)
 
-        self.ui.frame.gameOverSignal.connect(self.gameOver)
-        self.ui.frame.gameWinnerSignal.connect(self.gameWin)
-        self.ui.frame.lcdSignal.connect(self.changeLCD)
-        self.ui.frame.lcdSignalMode.connect(self.changeLcdMode)
-        self.ui.btMode1.clicked.connect(self.setModeOne)
-        self.ui.btMode2.clicked.connect(self.setModeTwo)
+        self.timerApple = QtCore.QBasicTimer()
+
+        self.ui.frame.gameResult.connect(self.gameResult)
+        self.ui.frame.lcdSignal.connect(lambda count: self.ui.lcdCount.display(count))
+        self.ui.frame.lcdSignalMode.connect(lambda mode: self.ui.lcdModeName.display(mode))
+        self.ui.frame.AppleTimer.connect(lambda time: self.timerApple.start(time, self))
+        self.ui.btMode1.clicked.connect(lambda : self.setMode(1))
+        self.ui.btMode2.clicked.connect(lambda : self.setMode(2))
         self.ui.btColor.clicked.connect(self.showSnakeColor)
         self.ui.btBorderColor.clicked.connect(self.showBorderColor)
         self.ui.btAppleColor.clicked.connect(self.showAppleColor)
@@ -45,7 +44,7 @@ class MyWindow(QtWidgets.QMainWindow):
         mainW = int(W*0.625)
         mainH =int(H*0.720)
         indentW =int( (W/2) - (mainW/2) )
-        indentH = int((H / 2) - (mainH / 2))
+        indentH = int( (H / 2) - (mainH / 2))
 
         self.move(indentW, indentH)
         self.setFixedSize(mainW, mainH)
@@ -60,81 +59,66 @@ class MyWindow(QtWidgets.QMainWindow):
 
     def checkStateShadow(self):
         if self.ui.shadow.isChecked():
-            self.ui.frame.shadowExist = True
+            self.ui.frame.snake.shadowExist = True
         else:
-            self.ui.frame.shadowExist = False
+            self.ui.frame.snake.shadowExist = False
 
 
     def showSnakeColor(self):
         color = QtWidgets.QColorDialog.getColor()
 
         if color.isValid():
-            self.ui.frame.colorSnake = color
+            self.ui.frame.snake.color = color
 
     def showBorderColor(self):
         color = QtWidgets.QColorDialog.getColor()
 
         if color.isValid():
-            self.ui.frame.borderSnake = color
+            self.ui.frame.snake.border = color
 
     def showAppleColor(self):
         color = QtWidgets.QColorDialog.getColor()
 
         if color.isValid():
-            self.ui.frame.colorApple = color
+            self.ui.frame.apple.color = color
 
-    def changeLcdMode(self,mode):
-        self.ui.lcdModeName.display(mode)
-
-    def changeLCD(self,count):
-        self.ui.lcdCount.display(count)
-
-    def setModeOne(self):
-        self.ui.frame.currentMode = 1
+    def setMode(self, mode):
+        self.ui.frame.currentMode = mode
         self.gameRestart()
 
-    def setModeTwo(self):
-        self.ui.frame.currentMode = 2
-        self.gameRestart()
-
-    def gameOver(self):
-        self.ui.lbStatus.setText('GAME OVER...\nPress Space')
-        self.timerMove.stop()
-        self.stop = True
-
-    def gameWin(self):
-        self.ui.lbStatus.setText('Respect for you...\nPress Space')
+    def gameResult(self, text):
+        self.ui.lbStatus.setText(text)
         self.timerMove.stop()
         self.stop = True
 
     def gameRestart(self):
         self.ui.lbStatus.setText('GO')
-        self.ui.frame.newSnake()
-        self.ui.frame.createApple()
+        self.ui.frame.reload()
         self.stop = False
         self.timerMove.start(self.speed , self)
-
 
     def timerEvent(self, event):
         if event.timerId() == self.timerMove.timerId():
             self.ui.frame.snakeMove()
             self.update()
 
-
+        if event.timerId() == self.timerApple.timerId():
+            self.ui.frame.createGoodApple()
+            self.timerApple.stop()
 
     def keyPressEvent(self, event):
         key = event.key()
         if key == QtCore.Qt.Key_Up:
-            self.ui.frame.changeMove(0,1)
+            self.ui.frame.snake.changeMove(0,1)
 
         if key == QtCore.Qt.Key_Down:
-            self.ui.frame.changeMove(0, -1)
+            self.ui.frame.snake.changeMove(0, -1)
 
         if key == QtCore.Qt.Key_Left:
-            self.ui.frame.changeMove(-1,0)
+            self.ui.frame.snake.changeMove(-1,0)
 
         if key == QtCore.Qt.Key_Right:
-            self.ui.frame.changeMove(1,0)
+            self.ui.frame.snake.changeMove(1,0)
 
         if key == QtCore.Qt.Key_Space:
             if self.stop:
@@ -142,7 +126,7 @@ class MyWindow(QtWidgets.QMainWindow):
 
 
     def setChildrenFocusPolicy(self, policy):
-        '''Focus on the main Window'''
+        """Focus on the main Window"""
         def recursiveSetChildFocusPolicy(parentQWidget):
             for childQWidget in parentQWidget.findChildren(QtWidgets.QWidget):
                 childQWidget.setFocusPolicy(policy)
