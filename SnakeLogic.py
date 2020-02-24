@@ -6,7 +6,6 @@ class FormPaint(QtWidgets.QFrame):
     """Central frame"""
     gameResult = QtCore.pyqtSignal(str) # Для подтверждения проигрыша или выигрыша
     lcdSignal = QtCore.pyqtSignal(int) # Сигнал для дисплея count
-    lcdSignalMode = QtCore.pyqtSignal(int) # Сигнал о текущем моде
     AppleTimer = QtCore.pyqtSignal(int) # Сигнал при плохом яблоке
     lcdSignalLenSnake = QtCore.pyqtSignal(int)
     def __init__(self, parent):
@@ -16,22 +15,22 @@ class FormPaint(QtWidgets.QFrame):
         self.Height = 30
         self.currentMode = 1
         self.snake = Snake(4)
-        self.reload()
 
     def reload (self):
         self.cointApple = 0
         self.snake.createNew(x=int(self.Width/2), y=1)
         self.lcdSignal.emit(self.cointApple)
-        self.lcdSignalMode.emit(self.currentMode)
         self.lcdSignalLenSnake.emit(self.snake.getLen())
         self.createApple()
 
     def createApple(self):
-        """Создает яблоко"""
         coords = self.createAppleCoord()
-        ap = random.randint(1,10)
-        if ap <= 9:
+        __ap = random.randint(1,10)
+        __p = 9
+        if self.currentMode == 4: __p = 7
+        if __ap <= __p:
             self.apple = Apple(coords)
+            if self.currentMode == 4: self.AppleTimer.emit(3000)
         else:
             self.apple = BadApple(coords)
             self.AppleTimer.emit(3000)
@@ -45,29 +44,28 @@ class FormPaint(QtWidgets.QFrame):
                 break
         return coords
 
-    def createGoodApple(self):
-        self.apple = Apple(self.apple.coords)
-
     def snakeMove(self):
         Newx =  self.snake.coords[0][0] + self.snake.currentDirect[0]
         Newy =  self.snake.coords[0][1] + self.snake.currentDirect[1]
         Newx, Newy, cut = self.checkMode(Newx, Newy)
         # Отвечает за столкновение с яблоком
         __apple = 1
-
         if not self.checkBorder(Newx,Newy) or not self.checkCollision(Newx,Newy):
             self.gameResult.emit("GAME OVER...\nPress Space")
         else:
             if self.snake.eatApple(Newx, Newy, self.apple.coords):
-                self.cointApple += 1
-                self.lcdSignal.emit(self.cointApple)
-                __apple = self.apple.effect()
-                if not self.snake.checkMinLen(__apple):
-                    self.gameResult.emit("GAME OVER...\nPress Space")
-                    self.snake.deleteMe()
+                __apple = self.eatenApple()
                 self.checkWIN()
             self.snake.move(__apple, Newx, Newy, cut)
             self.lcdSignalLenSnake.emit(self.snake.getLen())
+
+    def eatenApple(self):
+        self.cointApple += 1
+        self.lcdSignal.emit(self.cointApple)
+        if not self.snake.checkMinLen(self.apple.effect()):
+            self.gameResult.emit("GAME OVER...\nPress Space")
+            self.snake.deleteMe()
+        return self.apple.effect()
 
     def checkMode(self, Newx, Newy):
         cut = 0
@@ -91,10 +89,10 @@ class FormPaint(QtWidgets.QFrame):
         return 0
 
     def checkBorder(self, Newx, Newy):
-        """Проверяем на выход за рамки и не пересекая себя же"""
         if Newx > self.Width - 1 or Newy > self.Height or Newx < 0 or Newy < 1:
-            if self.currentMode ==1 or self.currentMode ==3:
-                return False
+            if self.currentMode == 2:
+                return True
+            return False
         return True
 
     def checkCollision(self, Newx, Newy):

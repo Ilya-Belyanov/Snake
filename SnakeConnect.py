@@ -17,12 +17,12 @@ class MyWindow(QtWidgets.QMainWindow):
 
         self.ui.frame.gameResult.connect(self.gameResult)
         self.ui.frame.lcdSignal.connect(lambda count: self.ui.lcdCount.display(count))
-        self.ui.frame.lcdSignalMode.connect(lambda mode: self.ui.lcdModeName.display(mode))
         self.ui.frame.lcdSignalLenSnake.connect(lambda length: self.ui.lcdLenSnake.display(length))
         self.ui.frame.AppleTimer.connect(lambda time: self.timerApple.start(time, self))
         self.ui.btMode1.clicked.connect(lambda : self.setMode(1))
         self.ui.btMode2.clicked.connect(lambda : self.setMode(2))
         self.ui.btMode3.clicked.connect(lambda: self.setMode(3))
+        self.ui.btMode4.clicked.connect(lambda: self.setMode(4))
         self.ui.btColor.clicked.connect(self.showSnakeColor)
         self.ui.btBorderColor.clicked.connect(self.showBorderColor)
         self.ui.btAppleColor.clicked.connect(self.showAppleColor)
@@ -38,6 +38,7 @@ class MyWindow(QtWidgets.QMainWindow):
         self.stop = False
 
         self.loadStyleSheets()
+        self.ui.frame.reload()
 
     def setSizeWindows(self,app):
         W = app.desktop().screenGeometry().width()
@@ -86,15 +87,18 @@ class MyWindow(QtWidgets.QMainWindow):
 
     def setMode(self, mode):
         self.ui.frame.currentMode = mode
+        self.ui.lcdModeName.display(mode)
         self.gameRestart()
 
     def gameResult(self, text):
         self.ui.lbStatus.setText(text)
         self.timerMove.stop()
+        self.timerApple.stop()
         self.stop = True
 
     def gameRestart(self):
         self.ui.lbStatus.setText('GO')
+        self.timerApple.stop()
         self.ui.frame.reload()
         self.stop = False
         self.timerMove.start(self.speed , self)
@@ -105,8 +109,8 @@ class MyWindow(QtWidgets.QMainWindow):
             self.update()
 
         if event.timerId() == self.timerApple.timerId():
-            self.ui.frame.createGoodApple()
             self.timerApple.stop()
+            self.ui.frame.createApple()
 
     def keyPressEvent(self, event):
         key = event.key()

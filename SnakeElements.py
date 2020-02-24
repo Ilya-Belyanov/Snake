@@ -20,8 +20,7 @@ class Snake:
             self.coords.append(coord)
 
     def checkMinLen(self, apple):
-        oldCoord = self.coords
-        if len(oldCoord) - apple < 0:
+        if self.getLen() - apple < 0:
             return False
         return True
 
@@ -68,6 +67,9 @@ class Apple:
         self.color = QtGui.QColor.fromRgb(200, 0, 0, 255)
         self.coords = coord
 
+    def __str__(self):
+        return "Good"
+
     def effect(self):
         return 0
 
@@ -75,6 +77,9 @@ class BadApple(Apple):
     def __init__(self, coord):
         super().__init__(coord)
         self.color = QtGui.QColor.fromRgb(0, 0, 0, 255)
+
+    def __str__(self):
+        return "Bad"
 
     def effect(self):
         return 2
